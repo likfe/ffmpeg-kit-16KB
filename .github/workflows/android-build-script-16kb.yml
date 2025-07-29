@@ -1,4 +1,4 @@
-name: android build scripts
+name: android build scripts 16kb
 
 on:
   workflow_dispatch:
