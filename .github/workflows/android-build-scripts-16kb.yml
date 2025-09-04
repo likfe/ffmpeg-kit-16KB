@@ -116,7 +116,7 @@ jobs:
         with:
           path: aar-artifacts
       - name: list downloaded files for debug
-        run: ls -R aar-artifacts
+        run: ls -R ./
       - name: create github release and upload assets
         uses: softprops/action-gh-release@v2
         with:
@@ -124,4 +124,4 @@ jobs:
           name: "Android AARs (NDK r25-16k) - ${{ env.TAG_NAME }}"
           body: "Automated release of Android AAR files from Linux builds using NDK r25 with 16kB page size support."
           prerelease: true
-          files: aar-artifacts/*/*.aar
+          files: bundle-android-aar/ffmpeg-kit/*.aar
