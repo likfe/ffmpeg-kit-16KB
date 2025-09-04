@@ -29,6 +29,9 @@ jobs:
   build-min-on-linux:
     name: android main on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -43,27 +46,18 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
         run: ./android.sh -d --enable-android-media-codec --enable-android-zlib --disable-arm-v7a
-      - name: prepare and upload min aar
-        run: |
-          AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
-          if [ -z "$AAR_PATH" ]; then
-            echo "Error: ffmpeg-kit.aar not found in prebuilt directory."
-            exit 1
-          fi
-          mv "$AAR_PATH" "ffmpeg-kit-min-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-main-aar
-          path: ffmpeg-kit-main-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-min-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
@@ -85,7 +79,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -98,14 +92,13 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-min-gpl-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-min-gpl-aar
-          path: ffmpeg-kit-min-gpl-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-min-gpl-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
@@ -127,7 +120,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -140,14 +133,13 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-https-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-https-aar
-          path: ffmpeg-kit-https-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-https-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
@@ -169,7 +161,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -182,14 +174,13 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-https-gpl-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-https-gpl-aar
-          path: ffmpeg-kit-https-gpl-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-https-gpl-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
@@ -211,7 +202,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -224,14 +215,13 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-audio-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-audio-aar
-          path: ffmpeg-kit-audio-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-audio-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
@@ -253,7 +243,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -266,14 +256,13 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-video-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-video-aar
-          path: ffmpeg-kit-video-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-vedio-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
@@ -295,7 +284,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -308,18 +297,16 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-full-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-full-aar
-          path: ffmpeg-kit-full-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-full-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
-
   build-full-gpl-on-linux:
     name: android full-gpl on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
@@ -337,7 +324,7 @@ jobs:
         run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
       - name: set up android ndk r25 (16k support)
         run: |
-          curl -L -s "https://storage.googleapis.com/android-build/builds/aosp-ndk-release-r23-linux-linux/12186248/38c84da1ab0dd31ea40c857d2c9ee77450d9d71d76e60ac2ccd33d379babc534/android-ndk-12186248-linux-x86_64.zip?GoogleAccessId=gcs-sign%40android-builds-project.google.com.iam.gserviceaccount.com&Expires=1753821804&Signature=HKQJTqNSRtaAveX4C8sOom1Yc6SF3FCDSMcdz2HPuBMvAhspFd694g%2FXo9%2FFDBoi9otnp4FhTIi272AhCdf4iL6eybaZVhf9y1GgtxTrNhXH3%2BCMcoAUfkmhZzFX6N7yvvohi8ikfay6RVF7y3%2BguKLOA%2B4QOr4CTSy8FnSFbfWMB2m0%2BfB%2BE9QGjc4QjWSXJcMbFn2vhcDGEOQgJepXmuWRzUqdmZF%2FWNpuiCcMRsSFroiqmZcMZy2uPmrxD9BkBlFlMMjWXx1BRYJsd5vSEEx7Q5DyD%2FNwIbsftV2tDMjTQbUucnQ8oUo2VLcOCKeRjGVymGz66esLaP6AJu2bGg%3D%3D" -o ndk.zip
+          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
@@ -350,14 +337,13 @@ jobs:
             exit 1
           fi
           mv "$AAR_PATH" "ffmpeg-kit-full-gpl-ndk-r25-16k.aar"
-      - uses: actions/upload-artifact@v4
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-kit-full-gpl-aar
-          path: ffmpeg-kit-full-gpl-ndk-r25-16k.aar
-          if-no-files-found: error
-      - name: print build logs
-        if: ${{ always() }}
-        run: cat build.log
+          name: build-full-gpl-linux-${{ matrix.ndk-version }}
+          path: |
+            prebuilt/
+            build.log
       - name: print ffbuild logs
         if: ${{ failure() }}
         run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
