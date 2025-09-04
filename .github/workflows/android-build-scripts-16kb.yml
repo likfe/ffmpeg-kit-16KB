@@ -65,6 +65,9 @@ jobs:
   build-min-gpl-on-linux:
     name: android min-gpl on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -106,6 +109,9 @@ jobs:
   build-https-on-linux:
     name: android https on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -147,6 +153,9 @@ jobs:
   build-https-gpl-on-linux:
     name: android https-gpl on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -188,6 +197,9 @@ jobs:
   build-audio-on-linux:
     name: android audio on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -229,6 +241,9 @@ jobs:
   build-video-on-linux:
     name: android video on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -270,6 +285,9 @@ jobs:
   build-full-on-linux:
     name: android full on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
@@ -310,6 +328,9 @@ jobs:
   build-full-gpl-on-linux:
     name: android full-gpl on linux (ndk-r25-16k)
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        ndk-version: [ 'r25b-linux' ]
     defaults:
       run:
         shell: bash
