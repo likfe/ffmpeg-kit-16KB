@@ -50,7 +50,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-android-media-codec --enable-android-zlib --disable-arm-v7a
+        run: ./android.sh -d --enable-android-media-codec --enable-android-zlib --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -86,7 +86,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gpl --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a
+        run: ./android.sh -d --enable-gpl --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a  --disable-x86 --disable-x86-64
       - name: prepare and upload min-gpl aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -130,7 +130,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gmp --enable-gnutls --disable-arm-v7a
+        run: ./android.sh -d --enable-gmp --enable-gnutls --disable-arm-v7a  --disable-x86 --disable-x86-64
       - name: prepare and upload https aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -174,7 +174,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gpl --enable-gmp --enable-gnutls --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a
+        run: ./android.sh -d --enable-gpl --enable-gmp --enable-gnutls --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a  --disable-x86 --disable-x86-64
       - name: prepare and upload https-gpl aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -218,7 +218,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --disable-arm-v7a
+        run: ./android.sh -d --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: prepare and upload audio aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -262,7 +262,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-zimg --disable-arm-v7a
+        run: ./android.sh -d --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-zimg --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: prepare and upload video aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -306,7 +306,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gmp --enable-gnutls --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-libxml2 --enable-zimg --disable-arm-v7a
+        run: ./android.sh -d --enable-gmp --enable-gnutls --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-libxml2 --enable-zimg --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: prepare and upload full aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -349,7 +349,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gpl --enable-gmp --enable-gnutls --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-libxml2 --enable-zimg --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a
+        run: ./android.sh -d --enable-gpl --enable-gmp --enable-gnutls --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-libxml2 --enable-zimg --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: prepare and upload full-gpl aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
