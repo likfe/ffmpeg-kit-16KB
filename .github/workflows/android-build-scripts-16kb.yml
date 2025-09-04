@@ -86,7 +86,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gpl --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a  --disable-x86 --disable-x86-64
+        run: ./android.sh -d --enable-gpl --enable-libvidstab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a  --disable-x86 --disable-x86-64
       - name: prepare and upload min-gpl aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -99,182 +99,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-min-gpl-linux-${{ matrix.ndk-version }}
-          path: |
-            prebuilt/
-            build.log
-      - name: print ffbuild logs
-        if: ${{ failure() }}
-        run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
-
-  build-https-on-linux:
-    name: android https on linux (ndk-r25-16k)
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        ndk-version: [ 'r25b-linux' ]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - name: set up adopt jdk 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-      - name: prerequisites
-        run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
-      - name: set up android ndk r25 (16k support)
-        run: |
-          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
-          unzip -q -o ndk.zip -d .ndk
-          echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
-      - name: run the build script
-        run: ./android.sh -d --enable-gmp --enable-gnutls --disable-arm-v7a  --disable-x86 --disable-x86-64
-      - name: prepare and upload https aar
-        run: |
-          AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
-          if [ -z "$AAR_PATH" ]; then
-            echo "Error: ffmpeg-kit.aar not found in prebuilt directory."
-            exit 1
-          fi
-          mv "$AAR_PATH" "ffmpeg-kit-https-ndk-r25-16k.aar"
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-https-linux-${{ matrix.ndk-version }}
-          path: |
-            prebuilt/
-            build.log
-      - name: print ffbuild logs
-        if: ${{ failure() }}
-        run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
-
-  build-https-gpl-on-linux:
-    name: android https-gpl on linux (ndk-r25-16k)
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        ndk-version: [ 'r25b-linux' ]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - name: set up adopt jdk 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-      - name: prerequisites
-        run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
-      - name: set up android ndk r25 (16k support)
-        run: |
-          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
-          unzip -q -o ndk.zip -d .ndk
-          echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
-      - name: run the build script
-        run: ./android.sh -d --enable-gpl --enable-gmp --enable-gnutls --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a  --disable-x86 --disable-x86-64
-      - name: prepare and upload https-gpl aar
-        run: |
-          AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
-          if [ -z "$AAR_PATH" ]; then
-            echo "Error: ffmpeg-kit.aar not found in prebuilt directory."
-            exit 1
-          fi
-          mv "$AAR_PATH" "ffmpeg-kit-https-gpl-ndk-r25-16k.aar"
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-https-gpl-linux-${{ matrix.ndk-version }}
-          path: |
-            prebuilt/
-            build.log
-      - name: print ffbuild logs
-        if: ${{ failure() }}
-        run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
-
-  build-audio-on-linux:
-    name: android audio on linux (ndk-r25-16k)
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        ndk-version: [ 'r25b-linux' ]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - name: set up adopt jdk 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-      - name: prerequisites
-        run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
-      - name: set up android ndk r25 (16k support)
-        run: |
-          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
-          unzip -q -o ndk.zip -d .ndk
-          echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
-      - name: run the build script
-        run: ./android.sh -d --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --disable-arm-v7a --disable-x86 --disable-x86-64
-      - name: prepare and upload audio aar
-        run: |
-          AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
-          if [ -z "$AAR_PATH" ]; then
-            echo "Error: ffmpeg-kit.aar not found in prebuilt directory."
-            exit 1
-          fi
-          mv "$AAR_PATH" "ffmpeg-kit-audio-ndk-r25-16k.aar"
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-audio-linux-${{ matrix.ndk-version }}
-          path: |
-            prebuilt/
-            build.log
-      - name: print ffbuild logs
-        if: ${{ failure() }}
-        run: '[[ -f ./src/ffmpeg/ffbuild/config.log ]] && tail -50 ./src/ffmpeg/ffbuild/config.log'
-
-  build-video-on-linux:
-    name: android video on linux (ndk-r25-16k)
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        ndk-version: [ 'r25b-linux' ]
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - name: set up adopt jdk 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-      - name: prerequisites
-        run: ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --uninstall "cmake;3.10.2.4988404" "cmake;3.18.1"
-      - name: set up android ndk r25 (16k support)
-        run: |
-          curl -s "https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk-version }}.zip" -o ndk.zip
-          unzip -q -o ndk.zip -d .ndk
-          echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
-      - name: run the build script
-        run: ./android.sh -d --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-zimg --disable-arm-v7a --disable-x86 --disable-x86-64
-      - name: prepare and upload video aar
-        run: |
-          AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
-          if [ -z "$AAR_PATH" ]; then
-            echo "Error: ffmpeg-kit.aar not found in prebuilt directory."
-            exit 1
-          fi
-          mv "$AAR_PATH" "ffmpeg-kit-video-ndk-r25-16k.aar"
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-vedio-linux-${{ matrix.ndk-version }}
           path: |
             prebuilt/
             build.log
@@ -306,7 +130,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gmp --enable-gnutls --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-libxml2 --enable-zimg --disable-arm-v7a --disable-x86 --disable-x86-64
+        run: ./android.sh -d --full --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: prepare and upload full aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -349,7 +173,7 @@ jobs:
           unzip -q -o ndk.zip -d .ndk
           echo "ANDROID_NDK_ROOT=$PWD/.ndk/$(ls .ndk)" >> $GITHUB_ENV
       - name: run the build script
-        run: ./android.sh -d --enable-gpl --enable-gmp --enable-gnutls --enable-lame --enable-libilbc --enable-libvorbis --enable-opencore-amr --enable-opus --enable-shine --enable-soxr --enable-speex --enable-twolame --enable-vo-amrwbenc --enable-dav1d --enable-fontconfig --enable-freetype --enable-fribidi --enable-kvazaar --enable-libass --enable-libiconv --enable-libtheora --enable-libvpx --enable-libwebp --enable-snappy --enable-libxml2 --enable-zimg --enable-vid.stab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a --disable-x86 --disable-x86-64
+        run: ./android.sh -d --full --enable-gpl --enable-libvidstab --enable-x264 --enable-x265 --enable-xvidcore --disable-arm-v7a --disable-x86 --disable-x86-64
       - name: prepare and upload full-gpl aar
         run: |
           AAR_PATH=$(find prebuilt -type f -name 'ffmpeg-kit.aar')
@@ -373,7 +197,7 @@ jobs:
   create-release:
     name: create github release
     # This job will only start if BOTH of the jobs above complete successfully.
-    needs: [build-min-on-linux, build-min-gpl-on-linux, build-https-on-linux, build-https-gpl-on-linux, build-audio-on-linux, build-video-on-linux, build-full-on-linux, build-full-gpl-on-linux]
+    needs: [build-min-on-linux, build-min-gpl-on-linux, build-full-on-linux, build-full-gpl-on-linux]
     runs-on: ubuntu-latest
     # This job will only run if the workflow is started manually.
     if: github.event_name == 'workflow_dispatch'
