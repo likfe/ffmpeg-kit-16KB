@@ -1,4 +1,4 @@
-name: android build scripts
+name: android build scripts 16KB
 
 on:
   workflow_dispatch: # Allows manual triggering, which will create a release
